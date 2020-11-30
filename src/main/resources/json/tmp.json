@@ -1,0 +1,30 @@
+{
+  "fileNamePrefix": "",
+  "sheetDetailsList": [
+    {
+      "sheetName": "ABSTRACT",
+      "query": "",
+      "columnsDetailsList": [
+        {
+          "header": "Date",
+          "type": "DATE",
+          "alignment": "LEFT",
+          "addTotal": false
+        },
+        {
+          "header": "Total Cases",
+          "type": "INT",
+          "alignment": "RIGHT",
+          "addTotal": true
+        },
+        {
+          "header": "Form 3(In Amount)",
+          "type": "INT",
+          "alignment": "RIGHT",
+          "addTotal": true
+        }
+      ],
+      "addDepoHeader": true
+    }
+  ]
+}

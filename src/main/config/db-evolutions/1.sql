@@ -1,10 +1,10 @@
-DROP TABLE trip_details;
-DROP TABLE outlet_master;
-DROP TABLE depo_master;
-DROP TABLE slab_master;
+DROP TABLE IF EXISTS trip_details;
+DROP TABLE IF EXISTS outlet_master;
+DROP TABLE IF EXISTS depo_master;
+DROP TABLE IF EXISTS slab_master;
 
-DROP TABLE vehicle_contractor_details;
-DROP TABLE contractor_master;
+DROP TABLE IF EXISTS contractor_vehicle_details;
+DROP TABLE IF EXISTS contractor_master;
 
 CREATE TABLE depo_master (
     depo_name VARCHAR(20),
@@ -54,17 +54,19 @@ INSERT INTO outlet_master (outlet_code, outlet_address, station, depo_name, km_f
 ('5172', 'D.No.1-212/5, Thimmarajupalem (V), Nidadavole Rural mandal','Kovvur','Chagallu',16);
 
 CREATE TABLE trip_details (
+	id INT auto_increment,
     date DATE,
     outlet_code VARCHAR(10),
     vehicle_number VARCHAR(12),
     num_cases_imfl INT,
     num_cases_beer INT,
-    form_3 DOUBLE,
+    form_3 INT,
+    primary key(id),
     CONSTRAINT fk_outlet_trip FOREIGN KEY (outlet_code)
         REFERENCES outlet_master (outlet_code)
         ON DELETE RESTRICT ON UPDATE RESTRICT
 );
-INSERT INTO trip_details () VALUES
+INSERT INTO trip_details (date, outlet_code, vehicle_number,num_cases_imfl,num_cases_beer,form_3) VALUES
 ('2020-11-02', '5014', 'AP37Y9689', 0, 80, 0),
 ('2020-11-02', '5024', 'AP37TF0669', 108, 40, 0),
 ('2020-11-02', '5026', 'AP37TF0669', 105, 80, 100),
@@ -74,7 +76,27 @@ INSERT INTO trip_details () VALUES
 ('2020-11-02', '5143', 'AP07TD5314', 0, 110, 850),
 ('2020-11-02', '5166', 'AP37TC1077', 105, 95, 0),
 ('2020-11-02', '5168', 'AP37Y9689', 108, 35, 0),
-('2020-11-02', '5172', 'AP12V3042', 0, 100, 0);
+('2020-11-02', '5172', 'AP12V3042', 0, 100, 0),
+('2020-11-03', '5014', 'AP37Y9689', 0, 60, 0),
+('2020-11-03', '5024', 'AP37TF0669', 108, 50, 0),
+('2020-11-03', '5026', 'AP37TF0669', 105, 85, 100),
+('2020-11-03', '5030', 'AP37TF0669', 110, 43, 0),
+('2020-11-03', '5043', 'AP37TF0669', 106, 52, 230),
+('2020-11-03', '5120', 'AP37TF0669', 0, 85, 0),
+('2020-11-03', '5143', 'AP07TD5314', 0, 115, 850),
+('2020-11-03', '5166', 'AP37TC1077', 105, 98, 0),
+('2020-11-03', '5168', 'AP37Y9689', 108, 36, 20),
+('2020-11-03', '5172', 'AP12V3042', 0, 101, 0),
+('2020-11-04', '5014', 'AP37Y9689', 0, 65, 0),
+('2020-11-04', '5024', 'AP37TF0669', 108, 54, 10),
+('2020-11-04', '5026', 'AP37TF0669', 105, 86, 100),
+('2020-11-04', '5030', 'AP37TF0669', 110, 42, 0),
+('2020-11-04', '5043', 'AP37TF0669', 106, 51, 220),
+('2020-11-04', '5120', 'AP37TF0669', 0, 84, 0),
+('2020-11-04', '5143', 'AP07TD5314', 0, 116, 820),
+('2020-11-04', '5166', 'AP37TC1077', 105, 96, 0),
+('2020-11-04', '5168', 'AP37Y9689', 108, 35, 0),
+('2020-11-04', '5172', 'AP12V3042', 0, 100, 0);
 
 CREATE TABLE contractor_master (
     contractor_code VARCHAR(10),
@@ -83,15 +105,34 @@ CREATE TABLE contractor_master (
     PRIMARY KEY (contractor_code)
 );
 INSERT INTO contractor_master (contractor_code, contractor_name, contractor_email) VALUES
-();
+('KRSVL', 'K R S V Lakshmi', 'klakshmi75@gmail.com'),
+('HK', 'Harshita Kalidindi', 'kharshita96@gmail.com');
 
-CREATE TABLE vehicle_contractor_details (
-    vehicle_number VARCHAR(12),
+CREATE TABLE contractor_vehicle_details (
+	id INT auto_increment,
     contractor_code VARCHAR(10),
+    vehicle_number VARCHAR(12),
     date DATE,
-    PRIMARY KEY (vehicle_number , contractor_code , date),
+    primary key(id),
+    UNIQUE KEY (vehicle_number , contractor_code , date),
     CONSTRAINT fk_contractor_vehicle FOREIGN KEY (contractor_code)
         REFERENCES contractor_master (contractor_code)
         ON DELETE RESTRICT ON UPDATE RESTRICT
 );
+INSERT INTO contractor_vehicle_details (contractor_code, vehicle_number, date) VALUES
+('KRSVL', 'AP37Y9689', '2020-11-02'),
+('KRSVL', 'AP37TF0669', '2020-11-02'),
+('KRSVL', 'AP07TD5314', '2020-11-02'),
+('HK', 'AP37TC1077', '2020-11-02'),
+('HK', 'AP12V3042', '2020-11-02');
+('KRSVL', 'AP37Y9689', '2020-11-03'),
+('HK', 'AP37TF0669', '2020-11-03'),
+('KRSVL', 'AP07TD5314', '2020-11-03'),
+('HK', 'AP37TC1077', '2020-11-03'),
+('HK', 'AP12V3042', '2020-11-03');
+('KRSVL', 'AP37Y9689', '2020-11-04'),
+('KRSVL', 'AP37TF0669', '2020-11-04'),
+('HK', 'AP07TD5314', '2020-11-04'),
+('HK', 'AP37TC1077', '2020-11-04'),
+('HK', 'AP12V3042', '2020-11-04');
 

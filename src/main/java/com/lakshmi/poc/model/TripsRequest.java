@@ -1,6 +1,6 @@
 package com.lakshmi.poc.model;
 
-import com.lakshmi.poc.Depo;
+import com.lakshmi.poc.enums.Depo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+
 public class TripsRequest {
     @ApiModelProperty(value = "Depo Name. Ex: Chagallu/Eluru/Bhimavaram.", required = true)
     @NotNull(message = "Depo is mandatory")
@@ -68,4 +69,14 @@ public class TripsRequest {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "TripsRequest{" +
+                "depo=" + depo +
+                ", date=" + date +
+                ", dateRange=" + dateRange +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                '}';
+    }
 }
