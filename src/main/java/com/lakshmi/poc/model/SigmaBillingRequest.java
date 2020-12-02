@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 
-public class TripsRequest {
+public class SigmaBillingRequest {
     @ApiModelProperty(value = "Depo Name. Ex: Chagallu/Eluru/Bhimavaram.", required = true)
     @NotNull(message = "Depo is mandatory")
     private Depo depo;
@@ -24,7 +24,7 @@ public class TripsRequest {
     @ApiModelProperty(value = "Date. Ex: 21/12/2020.", required = false)
     private LocalDate date;
 
-    @ApiModelProperty(value = "If request is for a date range. Ex: true/false", example = "false", required = true)
+    @ApiModelProperty(value = "If request is for a date range. Ex: true/false", example = "false", required = false)
     private boolean dateRange = false;
 
     @ApiModelProperty(value = "Start Date. Ex: 21/12/2020.", required = false)

@@ -1,27 +1,22 @@
 {
-  "fileNamePrefix": "Sigma Billing Form - ",
   "sheetDetailsList": [
     {
       "sheetName": "ABSTRACT",
-      "queryByDate": "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td LEFT JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depo GROUP BY date  HAVING date = :date",
-      "queryByDateRange": "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td LEFT JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depo GROUP BY date  HAVING date between :startDate and :endDate",
+      "sheetPosition": 1,
       "columnsDetailsList": [
         {
           "header": "Date",
           "type": "DATE",
-          "alignment": "LEFT",
           "addTotal": false
         },
         {
           "header": "Total Cases",
           "type": "INT",
-          "alignment": "RIGHT",
           "addTotal": true
         },
         {
-          "header": "Form 3(In Amount)",
+          "header": "Form 3 (In Amount)",
           "type": "INT",
-          "alignment": "RIGHT",
           "addTotal": true
         }
       ],

@@ -2,6 +2,7 @@ package com.lakshmi.poc.exception.handler;
 
 import com.google.common.collect.Lists;
 import com.lakshmi.poc.constants.RequestConstants;
+import com.lakshmi.poc.exception.CustomException;
 import com.lakshmi.poc.model.ErrorResponse;
 import com.sun.javaws.exceptions.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
@@ -71,11 +72,20 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(Exception.class)
-    public ErrorResponse handleInvalidArgumentException(Exception ex) {
-        log.error("Unexpected Exception", ex);
+    @ExceptionHandler(CustomException.class)
+    public ErrorResponse handleCustomException(Exception ex) {
+        log.error("Custom Exception", ex);
 
         return new ErrorResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), Arrays.asList(ex.getMessage()));
+    }
+
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public ErrorResponse handleGenericException(Exception ex) {
+        log.error("Unexpected Exception", ex);
+
+        return new ErrorResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), Arrays.asList("Unexpected exception. Check logs"));
     }
 
 

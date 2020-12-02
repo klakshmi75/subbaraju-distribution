@@ -13,8 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class SheetDetails {
     private String sheetName;
-    private String queryByDate;
-    private String queryByDateRange;
+    private int sheetPosition;
     private List<ColumnDetails> columnsDetailsList;
     private boolean addDepoHeader;
 }

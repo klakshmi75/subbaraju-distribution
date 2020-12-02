@@ -1,10 +1,9 @@
 package com.lakshmi.poc.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lakshmi.poc.exception.handler.ExcelDetailsParseException;
+import com.lakshmi.poc.exception.WorkbookDetailsParseException;
 import com.lakshmi.poc.pojo.WorkbookDetails;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,11 +12,11 @@ import java.nio.file.Files;
 @Slf4j
 public class ExcelFormatUtils {
     private static ObjectMapper objectMapper = new ObjectMapper();
-    private static final String BILLING_DETAILS_JSON = "json/BillingDetailsFormat.json";
+    private static final String SIGMA_BILLING_DETAILS_JSON = "json/BillingDetailsFormat.json";
 
-    public static WorkbookDetails getBillingDetailsFormat() {
+    public static WorkbookDetails getSigmaBillingDetailsFormat() {
 
-        return getExcelDetailsFromJson(BILLING_DETAILS_JSON);
+        return getExcelDetailsFromJson(SIGMA_BILLING_DETAILS_JSON);
     }
 
     private static WorkbookDetails getExcelDetailsFromJson(String jsonFilePath) {
@@ -32,7 +31,7 @@ public class ExcelFormatUtils {
             details = objectMapper.readValue(content, WorkbookDetails.class);
             log.info("Successfully parsed json file {} to object.", jsonFilePath);
         } catch (Exception e) {
-            throw new ExcelDetailsParseException("Exception while parsing excel details", e);
+            throw new WorkbookDetailsParseException("Exception while parsing excel details", e);
         }
 
         return details;
@@ -43,7 +42,7 @@ public class ExcelFormatUtils {
         File file = new File(classLoader.getResource(jsonFilePath).getFile());
 
         if (!file.exists()) {
-            throw new ExcelDetailsParseException("Excel Details json file does not exist : " + jsonFilePath);
+            throw new WorkbookDetailsParseException("Excel Details json file does not exist : " + jsonFilePath);
         }
 
         return file;

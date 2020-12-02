@@ -11,6 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WorkbookDetails {
-    private String fileNamePrefix;
     private List<SheetDetails> sheetDetailsList;
 }

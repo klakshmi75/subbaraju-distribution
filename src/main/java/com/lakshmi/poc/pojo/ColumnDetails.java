@@ -14,6 +14,5 @@ import lombok.Setter;
 public class ColumnDetails {
     private String header;
     private ColumnDataType type;
-    private Alignment alignment;
     private boolean addTotal;
 }
