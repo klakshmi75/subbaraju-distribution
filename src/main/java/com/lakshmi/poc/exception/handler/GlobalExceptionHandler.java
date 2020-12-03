@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(CustomException.class)
-    public ErrorResponse handleCustomException(Exception ex) {
+    public ErrorResponse handleCustomException(CustomException ex) {
         log.error("Custom Exception", ex);
 
         return new ErrorResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), Arrays.asList(ex.getMessage()));

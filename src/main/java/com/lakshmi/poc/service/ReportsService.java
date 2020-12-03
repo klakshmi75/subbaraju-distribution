@@ -21,9 +21,12 @@ import java.util.Map;
 public class ReportsService {
     private static final String SIGMA_BILLING_FILE_NAME_DATE_RANGE = "APSBCL-$DEPO_ABBR-TRANSPORT CASES DETAILS $START_DATE To $END_DATE.xlsx";
     private static final String SIGMA_BILLING_FILE_NAME_DATE = "APSBCL-$DEPO_ABBR-TRANSPORT CASES DETAILS $DATE.xlsx";
-    private static final String SIGMA_BILLING_QUERY_BY_DATE = "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td LEFT JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depo GROUP BY date  HAVING date = :date";
-    private static final String SIGMA_BILLING_QUERY_BY_DATE_RANGE = "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td LEFT JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depo GROUP BY date  HAVING date between :startDate and :endDate";
-
+    private static final String ABSTRACT_QUERY_BY_DATE = "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depoName GROUP BY date  HAVING date = :date";
+    private static final String ABSTRACT_QUERY_BY_DATE_RANGE = "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depoName GROUP BY date  HAVING date between :startDate and :endDate";
+    private static final String OUTLET_DETAILS_QUERY_BY_DATE = "SELECT date AS 'Date', vehicle_number AS 'Vehicle Number', outlet_address AS 'Outlet Address', Station AS 'Station', km_from_depo AS 'KM From depo', om.outlet_code AS 'Outlet Code', num_cases_imfl AS 'IMFL', num_cases_beer AS 'BEER', (num_cases_imfl + num_cases_beer) AS 'Total Cases', form_3 AS 'Form 3 (In Amount)' FROM  trip_details td JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depoName WHERE date = :date";
+    private static final String OUTLET_DETAILS_QUERY_BY_DATE_RANGE = "SELECT date AS 'Date', vehicle_number AS 'Vehicle Number', outlet_address AS 'Outlet Address', Station AS 'Station', km_from_depo AS 'KM From depo', om.outlet_code AS 'Outlet Code', num_cases_imfl AS 'IMFL', num_cases_beer AS 'BEER', (num_cases_imfl + num_cases_beer) AS 'Total Cases', form_3 AS 'Form 3 (In Amount)' FROM  trip_details td  JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depoName WHERE date between :startDate and endDate";
+    private static final String SLAB_WISE_DETAILS_QUERY_BY_DATE = "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td LEFT JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depo GROUP BY date  HAVING date = :date";
+    private static final String SLAB_WISE_DETAILS_QUERY_BY_DATE_RANGE = "SELECT date AS 'Date', SUM(num_cases_imfl + num_cases_beer) AS 'Total Cases', SUM(form_3) AS 'Form 3 (In Amount)' FROM trip_details td LEFT JOIN outlet_master om ON td.outlet_code = om.outlet_code AND om.depo_name = :depo GROUP BY date  HAVING date between :startDate and :endDate";
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -35,7 +38,7 @@ public class ReportsService {
         WorkbookDetails workbookDetails = ExcelFormatUtils.getSigmaBillingDetailsFormat();
         Map<Integer, List<Map<String, Object>>> dataBySheetPosition = Maps.newHashMap();
         dataBySheetPosition.put(1, getAbstractData(sigmaBillingRequest));
-//        dataBySheetPosition.put(2, getOutletWiseData(sigmaBillingRequest));
+        dataBySheetPosition.put(2, getOutletWiseData(sigmaBillingRequest));
 //        dataBySheetPosition.put(3, getSlabWiseData(sigmaBillingRequest));
         ExcelExportUtils.generateExcelReport(workbookDetails, dataBySheetPosition, os, sigmaBillingRequest.getDepo());
     }
@@ -43,9 +46,9 @@ public class ReportsService {
     private List<Map<String, Object>> getAbstractData(SigmaBillingRequest sigmaBillingRequest) {
         String query;
         if(sigmaBillingRequest.isDateRange()) {
-            query = SIGMA_BILLING_QUERY_BY_DATE_RANGE;
+            query = ABSTRACT_QUERY_BY_DATE_RANGE;
         } else {
-            query = SIGMA_BILLING_QUERY_BY_DATE;
+            query = ABSTRACT_QUERY_BY_DATE;
         }
         List<Map<String, Object>> rawData = jdbcTemplate.queryForList(query, getQueryParamsForSigmaBilling(sigmaBillingRequest));
 
@@ -55,9 +58,9 @@ public class ReportsService {
     private List<Map<String, Object>> getOutletWiseData(SigmaBillingRequest sigmaBillingRequest) {
         String query;
         if(sigmaBillingRequest.isDateRange()) {
-            query = SIGMA_BILLING_QUERY_BY_DATE_RANGE;
+            query = OUTLET_DETAILS_QUERY_BY_DATE_RANGE;
         } else {
-            query = SIGMA_BILLING_QUERY_BY_DATE;
+            query = OUTLET_DETAILS_QUERY_BY_DATE;
         }
         List<Map<String, Object>> rawData = jdbcTemplate.queryForList(query, getQueryParamsForSigmaBilling(sigmaBillingRequest));
 
@@ -67,9 +70,9 @@ public class ReportsService {
     private List<Map<String, Object>> getSlabWiseData(SigmaBillingRequest sigmaBillingRequest) {
         String query;
         if(sigmaBillingRequest.isDateRange()) {
-            query = SIGMA_BILLING_QUERY_BY_DATE_RANGE;
+            query = ABSTRACT_QUERY_BY_DATE_RANGE;
         } else {
-            query = SIGMA_BILLING_QUERY_BY_DATE;
+            query = ABSTRACT_QUERY_BY_DATE;
         }
         List<Map<String, Object>> rawData = jdbcTemplate.queryForList(query, getQueryParamsForSigmaBilling(sigmaBillingRequest));
 
@@ -79,11 +82,11 @@ public class ReportsService {
     private Map<String, Object> getQueryParamsForSigmaBilling(SigmaBillingRequest sigmaBillingRequest) {
         Map<String, Object> queryParams = Maps.newHashMap();
         if (sigmaBillingRequest.isDateRange()) {
-            queryParams.put("depo", "Chagallu");
+            queryParams.put("depoName", sigmaBillingRequest.getDepo().getDepoName());
             queryParams.put("startDate", sigmaBillingRequest.getStartDate());
             queryParams.put("endDate", sigmaBillingRequest.getEndDate());
         } else {
-            queryParams.put("depo", "Chagallu");
+            queryParams.put("depoName", sigmaBillingRequest.getDepo().getDepoName());
             queryParams.put("date", sigmaBillingRequest.getDate());
         }
 

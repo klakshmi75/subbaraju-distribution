@@ -11,7 +11,64 @@
         },
         {
           "header": "Total Cases",
+          "type": "BIG_DECIMAL",
+          "addTotal": true
+        },
+        {
+          "header": "Form 3 (In Amount)",
+          "type": "BIG_DECIMAL",
+          "addTotal": true
+        }
+      ],
+      "addDepoHeader": true
+    },
+    {
+      "sheetName": "OUTLET DETAILS",
+      "sheetPosition": 2,
+      "columnsDetailsList": [
+        {
+          "header": "Date",
+          "type": "DATE",
+          "addTotal": false
+        },
+        {
+          "header": "Vehicle Number",
+          "type": "STRING",
+          "addTotal": false
+        },
+        {
+          "header": "Outlet Address",
+          "type": "STRING",
+          "addTotal": false
+        },
+        {
+          "header": "Station",
+          "type": "STRING",
+          "addTotal": false
+        },
+        {
+          "header": "KM From Depo",
+          "type": "DOUBLE",
+          "addTotal": false
+        },
+        {
+          "header": "Outlet Code",
+          "type": "STRING",
+          "addTotal": false
+        },
+        {
+          "header": "IMFL",
           "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "BEER",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Total Cases",
+          "type": "LONG",
           "addTotal": true
         },
         {
@@ -20,7 +77,7 @@
           "addTotal": true
         }
       ],
-      "addDepoHeader": true
+      "addDepoHeader": false
     }
   ]
 }

@@ -55,12 +55,12 @@ INSERT INTO outlet_master (outlet_code, outlet_address, station, depo_name, km_f
 
 CREATE TABLE trip_details (
 	id INT auto_increment,
-    date DATE,
-    outlet_code VARCHAR(10),
-    vehicle_number VARCHAR(12),
-    num_cases_imfl INT,
-    num_cases_beer INT,
-    form_3 INT,
+    date DATE NOT NULL,
+    outlet_code VARCHAR(10) NOT NULL,
+    vehicle_number VARCHAR(12) NOT NULL,
+    num_cases_imfl INT NOT NULL,
+    num_cases_beer INT NOT NULL,
+    form_3 INT NOT NULL,
     primary key(id),
     CONSTRAINT fk_outlet_trip FOREIGN KEY (outlet_code)
         REFERENCES outlet_master (outlet_code)
@@ -110,9 +110,9 @@ INSERT INTO contractor_master (contractor_code, contractor_name, contractor_emai
 
 CREATE TABLE contractor_vehicle_details (
 	id INT auto_increment,
-    contractor_code VARCHAR(10),
-    vehicle_number VARCHAR(12),
-    date DATE,
+    contractor_code VARCHAR(10) NOT NULL,
+    vehicle_number VARCHAR(12) NOT NULL,
+    date DATE NOT NULL,
     primary key(id),
     UNIQUE KEY (vehicle_number , contractor_code , date),
     CONSTRAINT fk_contractor_vehicle FOREIGN KEY (contractor_code)
@@ -124,12 +124,12 @@ INSERT INTO contractor_vehicle_details (contractor_code, vehicle_number, date) V
 ('KRSVL', 'AP37TF0669', '2020-11-02'),
 ('KRSVL', 'AP07TD5314', '2020-11-02'),
 ('HK', 'AP37TC1077', '2020-11-02'),
-('HK', 'AP12V3042', '2020-11-02');
+('HK', 'AP12V3042', '2020-11-02'),
 ('KRSVL', 'AP37Y9689', '2020-11-03'),
 ('HK', 'AP37TF0669', '2020-11-03'),
 ('KRSVL', 'AP07TD5314', '2020-11-03'),
 ('HK', 'AP37TC1077', '2020-11-03'),
-('HK', 'AP12V3042', '2020-11-03');
+('HK', 'AP12V3042', '2020-11-03'),
 ('KRSVL', 'AP37Y9689', '2020-11-04'),
 ('KRSVL', 'AP37TF0669', '2020-11-04'),
 ('HK', 'AP07TD5314', '2020-11-04'),

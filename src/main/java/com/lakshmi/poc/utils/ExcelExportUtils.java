@@ -51,7 +51,7 @@ public class ExcelExportUtils {
             // Add data rows
             for(Map<String, Object> dataRow: data) {
                 row = sheet.createRow(rowIndex++);
-                addDataRow(row, dataRow, columnDetailsList);
+                addDataRow(row, dataRow, columnDetailsList, sheetDetails.isAddDepoHeader());
             }
 
             // Add Total Row
@@ -72,12 +72,14 @@ public class ExcelExportUtils {
         // Add District Name header in first 2 cells of first row
         cell = row.createCell(0);
         cell.setCellValue(getDistrictHeader(depo));
+        cell.setCellStyle(getHeaderStyle(row, false));
         // Merge first and second cells
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1));
 
         // Add Depo Name in 3rd and 4th cell of first row
         cell = row.createCell(2);
         cell.setCellValue(getDepoHeader(depo));
+        cell.setCellStyle(getHeaderStyle(row, false));
         // Merge third and fourth cells
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 2, 3));
     }
@@ -88,35 +90,47 @@ public class ExcelExportUtils {
         // Add header "S.No."
         cell = row.createCell(cellIndex++);
         cell.setCellValue(SERIAL_NO_HEADER);
+        cell.setCellStyle(getHeaderStyle(row, false));
 
         // Iterate each column detail and add header cell
         for(ColumnDetails columnDetail: columnDetailsList) {
             cell = row.createCell(cellIndex++);
             cell.setCellValue(columnDetail.getHeader());
+            cell.setCellStyle(getHeaderStyle(row, false));
         }
     }
 
-    private static void addDataRow(Row row, Map<String, Object> dataRow, List<ColumnDetails> columnDetailsList) {
+    private static void addDataRow(Row row, Map<String, Object> dataRow, List<ColumnDetails> columnDetailsList, boolean depoNameHeaderExists) {
         Cell cell;
         int cellIndex = 0;
+        log.info("Adding data row : {}", row.getRowNum());
+        log.info("Data : {}", dataRow);
         // Add Serial Number
         cell = row.createCell(cellIndex++);
-        cell.setCellValue(row.getRowNum() - 1);
+        // If depo header row exists serial number will be 1 less than row number
+        cell.setCellValue(depoNameHeaderExists ? row.getRowNum() - 1 : row.getRowNum());
 
         // Iterate each column detail and add data cell
         for(ColumnDetails columnDetail: columnDetailsList) {
+            cell = row.createCell(cellIndex++);
+            log.debug("Adding data cell. Header : {}, Type : {}", columnDetail.getHeader(), columnDetail.getType());
             switch (columnDetail.getType()) {
                 case STRING:
-                    cell = row.createCell(cellIndex++);
                     cell.setCellValue((String)dataRow.get(columnDetail.getHeader()));
-
                     break;
                 case INT:
-                    cell = row.createCell(cellIndex++);
+                    cell.setCellValue((Integer)dataRow.get(columnDetail.getHeader()));
+                    break;
+                case LONG:
+                    cell.setCellValue((Long)dataRow.get(columnDetail.getHeader()));
+                    break;
+                case DOUBLE:
+                    cell.setCellValue((Double)dataRow.get(columnDetail.getHeader()));
+                    break;
+                case BIG_DECIMAL:
                     cell.setCellValue(((BigDecimal)dataRow.get(columnDetail.getHeader())).intValue());
                     break;
                 case DATE:
-                    cell = row.createCell(cellIndex++);
                     cell.setCellValue((Date)dataRow.get(columnDetail.getHeader()));
                     break;
             }
@@ -127,10 +141,10 @@ public class ExcelExportUtils {
 
     private static void addTotalRow(Row row, List<ColumnDetails> columnDetailsList, boolean depoNameHeaderExists) {
         Cell cell;
-        // Add Total label under Date column (2nd column)
-        cell = row.createCell(1);
-        cell.setCellValue("Total");
-        cell.setCellStyle(getCellStyle(row, ColumnDataType.STRING));
+        // Create empty cell under S.No. (to be able to apply background color)
+        cell = row.createCell(0);
+        cell.setCellValue("");
+        cell.setCellStyle(getHeaderStyle(row, false));
 
         // Add sum formula for number type columns
         char headerChar = 'A'; // skip S.No
@@ -138,16 +152,24 @@ public class ExcelExportUtils {
         for(ColumnDetails columnDetails: columnDetailsList) {
             cellIndex++;
             headerChar++;
+            cell = row.createCell(cellIndex);
             if(columnDetails.isAddTotal()) {
-                cell = row.createCell(cellIndex);
                 // Get cell numbers for formula Ex: "SUM(A1:A10)"
                 int fromRowNum = depoNameHeaderExists ? 3 : 2;
                 int toRowNum = row.getRowNum();
                 String fromCell = String.valueOf(headerChar) + fromRowNum;
                 String toCell = String.valueOf(headerChar) + toRowNum;
                 cell.setCellFormula("SUM(" +  fromCell + ":" + toCell + ")");
-                cell.setCellStyle(getCellStyle(row, ColumnDataType.INT));
+                cell.setCellStyle(getHeaderStyle(row, true));
+            } else {
+                if(cellIndex == 1) { // Date column
+                    cell.setCellValue("Total");
+                } else {
+                    cell.setCellValue(""); // Empty cell to fill background color
+                }
+                cell.setCellStyle(getHeaderStyle(row, false));
             }
+
         }
     }
 
@@ -168,23 +190,36 @@ public class ExcelExportUtils {
         CellStyle cellStyle = null;
         Workbook workbook = row.getSheet().getWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
-
+        cellStyle = workbook.createCellStyle();
         switch (dataType) {
             case STRING:
-                cellStyle = workbook.createCellStyle();
                 cellStyle.setAlignment(CellStyle.ALIGN_LEFT);
                 break;
             case INT:
-                cellStyle = workbook.createCellStyle();
                 cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
                 break;
             case DATE:
-                cellStyle = workbook.createCellStyle();
                 cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/mmm/yy"));
                 cellStyle.setAlignment(CellStyle.ALIGN_LEFT);
                 break;
         }
 
+        return cellStyle;
+    }
+
+    private static CellStyle getHeaderStyle(Row row, boolean isNumberType) {
+        CellStyle cellStyle;
+        if(isNumberType) {
+            cellStyle = getCellStyle(row, ColumnDataType.INT);
+        } else {
+            cellStyle = getCellStyle(row, ColumnDataType.STRING);
+        }
+        // Header font
+        Font headerFont = row.getSheet().getWorkbook().createFont();
+        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        cellStyle.setFont(headerFont);
+        cellStyle.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
         return cellStyle;
     }
 }
