@@ -17,7 +17,8 @@
         {
           "header": "Form 3 (In Amount)",
           "type": "BIG_DECIMAL",
-          "addTotal": true
+          "addTotal": true,
+          "addRupee": true
         }
       ],
       "addDepoHeader": true
@@ -73,6 +74,59 @@
         },
         {
           "header": "Form 3 (In Amount)",
+          "type": "INT",
+          "addTotal": true,
+          "addRupee": true
+        }
+      ],
+      "addDepoHeader": false
+    },
+    {
+      "sheetName": "SLABWISE DETAILS",
+      "sheetPosition": 3,
+      "columnsDetailsList": [
+        {
+          "header": "Date",
+          "type": "DATE",
+          "addTotal": false
+        },
+        {
+          "header": "Total Cases",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Slab - 1 Cases 0-20Km",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Slab - 2 Cases 21-40Km",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Slab - 3 Cases 41-60Km",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Slab - 4 Cases 61-80Km",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Slab - 5 Cases 81-100Km",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Slab - 6 Cases 101-120Km",
+          "type": "INT",
+          "addTotal": true
+        },
+        {
+          "header": "Slab - 7 Cases 121-140Km",
           "type": "INT",
           "addTotal": true
         }

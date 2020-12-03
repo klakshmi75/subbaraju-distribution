@@ -15,4 +15,5 @@ public class ColumnDetails {
     private String header;
     private ColumnDataType type;
     private boolean addTotal;
+    private boolean addRupee = false;
 }

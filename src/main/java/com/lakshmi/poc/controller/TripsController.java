@@ -24,7 +24,7 @@ public class TripsController {
     @Autowired
     ReportsService reportsService;
 
-    @RequestMapping(value = "/trips", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/billing/sigma", method = RequestMethod.GET, produces = "application/json")
     public void firstPage(@Valid SigmaBillingRequest sigmaBillingRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("TripsRequest\n {}", sigmaBillingRequest);
         try {
