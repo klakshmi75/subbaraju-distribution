@@ -3,6 +3,7 @@ package com.lakshmi.poc.exception.handler;
 import com.google.common.collect.Lists;
 import com.lakshmi.poc.constants.RequestConstants;
 import com.lakshmi.poc.exception.CustomException;
+import com.lakshmi.poc.exception.InvalidInputException;
 import com.lakshmi.poc.model.ErrorResponse;
 import com.sun.javaws.exceptions.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +68,14 @@ public class GlobalExceptionHandler {
         } else {
             message = "Invalid Input";
         }
+
+        return new ErrorResponse(String.valueOf(HttpStatus.BAD_REQUEST.value()), Arrays.asList(ex.getMessage()));
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidInputException.class)
+    public ErrorResponse handleInvalidInputException(InvalidInputException ex) {
+        log.error("Invalid Input Exception", ex);
 
         return new ErrorResponse(String.valueOf(HttpStatus.BAD_REQUEST.value()), Arrays.asList(ex.getMessage()));
     }

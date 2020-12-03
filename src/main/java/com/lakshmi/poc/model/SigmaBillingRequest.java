@@ -6,15 +6,17 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@ApiModel("Trips Request Query Params")
+@ApiModel("Sigma Billing Request Query Params")
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class SigmaBillingRequest {
     @ApiModelProperty(value = "Depo Name. Ex: CHAGALLU/ELURU/BHIMAVARAM.", required = true)
     @NotNull(message = "Depo is mandatory. Allowed values are CHAGALLU, ELURU, BHIMAVARAM.")
@@ -66,16 +68,5 @@ public class SigmaBillingRequest {
             result = false;
         }
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "TripsRequest{" +
-                "depo=" + depo +
-                ", date=" + date +
-                ", dateRange=" + dateRange +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                '}';
     }
 }

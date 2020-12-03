@@ -1,16 +1,15 @@
 package com.lakshmi.poc.controller;
 
 import com.lakshmi.poc.exception.CustomException;
+import com.lakshmi.poc.model.TripDetails;
 import com.lakshmi.poc.service.ReportsService;
 import com.lakshmi.poc.model.SigmaBillingRequest;
+import com.lakshmi.poc.service.TripDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MimeType;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,12 +19,15 @@ import java.io.*;
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @Slf4j
-public class SigmaBillingController {
+public class TripsController {
     @Autowired
     ReportsService reportsService;
 
+    @Autowired
+    TripDetailsService tripDetailsService;
+
     @RequestMapping(value = "/billing/sigma", method = RequestMethod.GET, produces = "application/json")
-    public void firstPage(@Valid SigmaBillingRequest sigmaBillingRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void downloadingSigmaBillingReport(@Valid SigmaBillingRequest sigmaBillingRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("TripsRequest\n {}", sigmaBillingRequest);
         try {
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
@@ -37,6 +39,12 @@ public class SigmaBillingController {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             throw new CustomException("Some exception occurred while preparing excel. Check server logs.", e);
         }
+    }
 
+    @RequestMapping(value = "/data/sigma", method = RequestMethod.POST, produces = "application/json")
+    public String saveTripDetailsForSigmaBilling(@Valid @RequestBody TripDetails tripDetails) {
+        log.info("TripDetails\n {}", tripDetails);
+        tripDetailsService.saveTripDetails(tripDetails);
+        return "Trip details saved successfully!!";
     }
 }
