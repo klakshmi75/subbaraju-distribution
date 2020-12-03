@@ -20,7 +20,7 @@ import java.io.*;
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @Slf4j
-public class TripsController {
+public class SigmaBillingController {
     @Autowired
     ReportsService reportsService;
 

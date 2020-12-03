@@ -15,10 +15,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-
 public class SigmaBillingRequest {
-    @ApiModelProperty(value = "Depo Name. Ex: Chagallu/Eluru/Bhimavaram.", required = true)
-    @NotNull(message = "Depo is mandatory")
+    @ApiModelProperty(value = "Depo Name. Ex: CHAGALLU/ELURU/BHIMAVARAM.", required = true)
+    @NotNull(message = "Depo is mandatory. Allowed values are CHAGALLU, ELURU, BHIMAVARAM.")
     private Depo depo;
 
     @ApiModelProperty(value = "Date. Ex: 21/12/2020.", required = false)
