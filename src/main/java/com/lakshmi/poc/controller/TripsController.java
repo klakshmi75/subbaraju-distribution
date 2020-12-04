@@ -1,6 +1,7 @@
 package com.lakshmi.poc.controller;
 
 import com.lakshmi.poc.exception.CustomException;
+import com.lakshmi.poc.model.TripDetail;
 import com.lakshmi.poc.model.TripDetails;
 import com.lakshmi.poc.service.ReportsService;
 import com.lakshmi.poc.model.SigmaBillingRequest;
@@ -15,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
+import java.util.Collections;
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -26,7 +29,7 @@ public class TripsController {
     @Autowired
     TripDetailsService tripDetailsService;
 
-    @RequestMapping(value = "/billing/sigma", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "sigma/report", method = RequestMethod.GET, produces = "application/json")
     public void downloadingSigmaBillingReport(@Valid SigmaBillingRequest sigmaBillingRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("TripsRequest\n {}", sigmaBillingRequest);
         try {
@@ -41,10 +44,20 @@ public class TripsController {
         }
     }
 
-    @RequestMapping(value = "/data/sigma", method = RequestMethod.POST, produces = "application/json")
-    public String saveTripDetailsForSigmaBilling(@Valid @RequestBody TripDetails tripDetails) {
-        log.info("TripDetails\n {}", tripDetails);
-        tripDetailsService.saveTripDetails(tripDetails);
-        return "Trip details saved successfully!!";
+    @RequestMapping(value = "/sigma/data/single", method = RequestMethod.POST, produces = "application/json")
+    public String saveSingleForSigmaBilling(@Valid @RequestBody TripDetail tripDetail) {
+        log.info("TripDetail\n {}", tripDetail);
+        log.info("Saving trip details single for sigma billing...");
+        tripDetailsService.saveTripDetails(Collections.singletonList(tripDetail));
+        return "Single Trip detail saved successfully!!";
+    }
+
+    @RequestMapping(value = "/sigma/data/list", method = RequestMethod.POST, produces = "application/json")
+    public String saveListForSigmaBilling(@Valid @RequestBody List<TripDetail> tripDetailsList) {
+        log.info("TripDetail List\n {}", tripDetailsList);
+        log.info("Saving trip details list for sigma billing...");
+        tripDetailsService.saveTripDetails(tripDetailsList);
+        log.info("Successfully inserted trip details.") ;
+        return tripDetailsList.size() + " Trip details saved successfully!!";
     }
 }

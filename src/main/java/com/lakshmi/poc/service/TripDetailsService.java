@@ -20,17 +20,11 @@ public class TripDetailsService {
     private TripDetailsDao tripDetailsDao;
 
     @Transactional
-    public void saveTripDetails(TripDetails tripDetails) {
-        LocalDate date = tripDetails.getDate();
-        log.info("Saving trip details for date : {}", date);
-        // convert input to bean list to be used as sql param source
-        List<TripDetail> beanList = convertToBeanList(tripDetails);
-        // save trip details
-        tripDetailsDao.saveTripDetails(date, beanList);
-        log.info("Successfully inserted trip details for the Date : {}", date);
+    public void saveTripDetails(List<TripDetail> tripDetailList) {
+        tripDetailsDao.saveTripDetails(tripDetailList);
     }
 
-    private List<TripDetail> convertToBeanList(TripDetails tripDetails) {
+    public List<TripDetail> convertToBeanList(TripDetails tripDetails) {
         log.info("Converting list of list of objects to TripDetail objects list...");
         LocalDate date = tripDetails.getDate();
         log.info("Date : {}", date);

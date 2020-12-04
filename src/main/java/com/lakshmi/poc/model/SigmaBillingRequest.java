@@ -18,20 +18,20 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 public class SigmaBillingRequest {
-    @ApiModelProperty(value = "Depo Name. Ex: CHAGALLU/ELURU/BHIMAVARAM.", required = true)
+    @ApiModelProperty(value = "Depo Name. Ex: CHAGALLU/ELURU/BHIMAVARAM.", required = true, position = 1)
     @NotNull(message = "Depo is mandatory. Allowed values are CHAGALLU, ELURU, BHIMAVARAM.")
     private Depo depo;
 
-    @ApiModelProperty(value = "Date. Ex: 21/12/2020.", required = false)
+    @ApiModelProperty(value = "Date. Ex: 21/12/2020.", required = false, position = 2)
     private LocalDate date;
 
-    @ApiModelProperty(value = "If request is for a date range. Ex: true/false", example = "false", required = false)
+    @ApiModelProperty(value = "If request is for a date range. Ex: true/false", example = "false", required = false, position = 3)
     private boolean dateRange = false;
 
-    @ApiModelProperty(value = "Start Date. Ex: 21/12/2020.", required = false)
+    @ApiModelProperty(value = "Start Date. Ex: 21/12/2020.", required = false, position = 4)
     private LocalDate startDate;
 
-    @ApiModelProperty(value = "End Date. Ex: 21/12/2020.", required = false)
+    @ApiModelProperty(value = "End Date. Ex: 21/12/2020.", required = false, position = 5)
     private LocalDate endDate;
 
     @ApiModelProperty(hidden = true)

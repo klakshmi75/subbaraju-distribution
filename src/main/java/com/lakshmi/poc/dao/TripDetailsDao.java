@@ -23,7 +23,7 @@ public class TripDetailsDao {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public void saveTripDetails(LocalDate date, List<TripDetail> beanList) {
+    public void saveTripDetails(List<TripDetail> beanList) {
         SqlParameterSource[] params = SqlParameterSourceUtils.createBatch(beanList.toArray());
         namedParameterJdbcTemplate.batchUpdate(INSERT_TRIP_DETAILS_QUERY, params);
     }
