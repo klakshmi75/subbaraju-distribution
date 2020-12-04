@@ -1,16 +1,20 @@
 package com.lakshmi.poc.controller;
 
 import com.lakshmi.poc.exception.CustomException;
+import com.lakshmi.poc.exception.InvalidInputException;
 import com.lakshmi.poc.model.TripDetail;
-import com.lakshmi.poc.model.TripDetails;
 import com.lakshmi.poc.service.ReportsService;
 import com.lakshmi.poc.model.SigmaBillingRequest;
 import com.lakshmi.poc.service.TripDetailsService;
+import com.lakshmi.poc.utils.CSVHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.MimeType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.service.ResponseMessage;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,5 +63,23 @@ public class TripsController {
         tripDetailsService.saveTripDetails(tripDetailsList);
         log.info("Successfully inserted trip details.") ;
         return tripDetailsList.size() + " Trip details saved successfully!!";
+    }
+
+    @RequestMapping(value = "/sigma/data/csv", method = RequestMethod.POST, produces = "application/json")
+    public String saveCSVForSigmaBilling(@RequestParam("file") MultipartFile file) {
+        log.info("CSV File with name : {}", file.getOriginalFilename());
+        if (CSVHelper.hasCSVFormat(file)) {
+            try {
+                log.info("Saving csv for sigma billing...");
+                List<TripDetail> tripDetails = CSVHelper.csvToTripDetails(file.getInputStream());
+                tripDetailsService.saveTripDetails(tripDetails);
+                log.info("CSV file uploaded successfully with ");
+                return "Uploaded the file successfully: " + file.getOriginalFilename();
+            } catch (Exception e) {
+                throw new CustomException("Could not upload the file: " + file.getOriginalFilename() + "!", e);
+            }
+        } else {
+            throw  new InvalidInputException("Invalid file format. Please upload a csv file!");
+        }
     }
 }

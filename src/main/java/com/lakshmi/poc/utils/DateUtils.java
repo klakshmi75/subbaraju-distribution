@@ -8,5 +8,7 @@ public class DateUtils {
         return date.format(DateTimeFormatter.ofPattern("d-MM"));
     }
 
-
+    public static LocalDate getLocalDateFromString(String date) {
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
 }
