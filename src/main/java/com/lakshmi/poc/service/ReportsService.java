@@ -5,7 +5,7 @@ import com.lakshmi.poc.dao.ReportsDao;
 import com.lakshmi.poc.model.SigmaBillingRequest;
 import com.lakshmi.poc.pojo.WorkbookDetails;
 import com.lakshmi.poc.utils.DateUtils;
-import com.lakshmi.poc.utils.ExcelExportUtils;
+import com.lakshmi.poc.utils.ExcelHelper;
 import com.lakshmi.poc.utils.ExcelFormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class ReportsService {
         dataBySheetPosition.put(1, reportsDao.getAbstractData(sigmaBillingRequest));
         dataBySheetPosition.put(2, reportsDao.getOutletWiseData(sigmaBillingRequest));
         dataBySheetPosition.put(3, reportsDao.getSlabWiseData(sigmaBillingRequest));
-        ExcelExportUtils.generateExcelReport(workbookDetails, dataBySheetPosition, os, sigmaBillingRequest.getDepo());
+        ExcelHelper.generateExcelReport(workbookDetails, dataBySheetPosition, os, sigmaBillingRequest.getDepo());
     }
 
     public String getSigmaBillingFileName(SigmaBillingRequest sigmaBillingRequest) {

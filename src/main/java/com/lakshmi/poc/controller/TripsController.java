@@ -7,6 +7,7 @@ import com.lakshmi.poc.service.ReportsService;
 import com.lakshmi.poc.model.SigmaBillingRequest;
 import com.lakshmi.poc.service.TripDetailsService;
 import com.lakshmi.poc.utils.CSVHelper;
+import com.lakshmi.poc.utils.ExcelHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class TripsController {
         }
     }
 
-    @RequestMapping(value = "/sigma/data/single", method = RequestMethod.POST, produces = "application/json")
+//    @RequestMapping(value = "/sigma/data/single", method = RequestMethod.POST, produces = "application/json")
     public String saveSingleForSigmaBilling(@Valid @RequestBody TripDetail tripDetail) {
         log.info("TripDetail\n {}", tripDetail);
         log.info("Saving trip details single for sigma billing...");
@@ -56,7 +57,7 @@ public class TripsController {
         return "Single Trip detail saved successfully!!";
     }
 
-    @RequestMapping(value = "/sigma/data/list", method = RequestMethod.POST, produces = "application/json")
+//    @RequestMapping(value = "/sigma/data/list", method = RequestMethod.POST, produces = "application/json")
     public String saveListForSigmaBilling(@Valid @RequestBody List<TripDetail> tripDetailsList) {
         log.info("TripDetail List\n {}", tripDetailsList);
         log.info("Saving trip details list for sigma billing...");
@@ -65,16 +66,15 @@ public class TripsController {
         return tripDetailsList.size() + " Trip details saved successfully!!";
     }
 
-    @RequestMapping(value = "/sigma/data/csv", method = RequestMethod.POST, produces = "application/json")
+//    @RequestMapping(value = "/sigma/data/csv", method = RequestMethod.POST, produces = "application/json")
     public String saveCSVForSigmaBilling(@RequestParam("file") MultipartFile file) {
-        log.info("CSV File with name : {}", file.getOriginalFilename());
+        log.info("Processing CSV File with name : {}", file.getOriginalFilename());
         if (CSVHelper.hasCSVFormat(file)) {
             try {
-                log.info("Saving csv for sigma billing...");
                 List<TripDetail> tripDetails = CSVHelper.csvToTripDetails(file.getInputStream());
                 tripDetailsService.saveTripDetails(tripDetails);
                 log.info("CSV file uploaded successfully with ");
-                return "Uploaded the file successfully: " + file.getOriginalFilename();
+                return String.format("Uploaded the file successfully. Number of records : %d", tripDetails.size());
             } catch (Exception e) {
                 throw new CustomException("Could not upload the file: " + file.getOriginalFilename() + "!", e);
             }
@@ -82,4 +82,18 @@ public class TripsController {
             throw  new InvalidInputException("Invalid file format. Please upload a csv file!");
         }
     }
+
+    @RequestMapping(value = "/sigma/data/excel", method = RequestMethod.POST, produces = "application/json")
+    public String saveExcelForSigmaBilling(@RequestParam("file") MultipartFile file) {
+        log.info("Processing Excel File with name : {}", file.getOriginalFilename());
+        try {
+            List<TripDetail> tripDetails = ExcelHelper.excelToTripDetails(file);
+            tripDetailsService.saveTripDetails(tripDetails);
+            log.info("Excel file uploaded successfully with ");
+            return String.format("Uploaded the file successfully. Number of records : %d", tripDetails.size()) ;
+        } catch (Exception e) {
+            throw new CustomException("Could not upload the file: " + file.getOriginalFilename() + "!", e);
+        }
+    }
+
 }

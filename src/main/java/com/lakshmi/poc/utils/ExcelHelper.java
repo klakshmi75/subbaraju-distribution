@@ -1,27 +1,93 @@
 package com.lakshmi.poc.utils;
 
+import com.google.common.collect.Lists;
 import com.lakshmi.poc.enums.ColumnDataType;
 import com.lakshmi.poc.enums.Depo;
+import com.lakshmi.poc.exception.CustomException;
+import com.lakshmi.poc.model.TripDetail;
 import com.lakshmi.poc.pojo.ColumnDetails;
 import com.lakshmi.poc.pojo.SheetDetails;
 import com.lakshmi.poc.pojo.WorkbookDetails;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class ExcelExportUtils {
+public class ExcelHelper {
     private static final String DISTRICT_HEADER = "District Name - $DISTRICT";
     private static final String DEPO_HEADER = "Depo Name - $DISTRICT - $DEPO_CODE ($DEPO_NAME)";
     private static final String SERIAL_NO_HEADER = "S.No.";
+
+    // This method assumes the data will be present in the predefined order along with below headers.
+    // Date	 Outlet Code	 Vehicle Number	 IMFL	 BEER	 Form-3
+    public static List<TripDetail> excelToTripDetails(MultipartFile file) {
+        List<TripDetail> tripDetails = Lists.newArrayList();
+        String fileName = file.getOriginalFilename();
+        LocalDate date = null;
+        String outletCode = null;
+        String vehicleNumber = null;
+        Integer imfl = null;
+        Integer beer = null;
+        Integer form3 = null;
+
+        try (InputStream is = file.getInputStream()){
+            log.info("Reading excel file : {} for trip details", fileName);
+//            InputStream is = file.getInputStream();
+
+            //Create Workbook instance for xlsx/xls file input stream
+            Workbook workbook = null;
+            if (fileName.toLowerCase().endsWith("xlsx")) {
+                workbook = new XSSFWorkbook(is);
+            } else if (fileName.toLowerCase().endsWith("xls")) {
+                workbook = new HSSFWorkbook(is);
+            }
+
+            Sheet sheet = workbook.getSheetAt(0);
+            log.info("Processing only the first sheet {}", sheet.getSheetName());
+            Iterator<Row> rowIterator = sheet.iterator();
+
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                if(row.getRowNum() == 0) {
+                    continue; // Skip headers
+                }
+                Cell firstCell = row.getCell(0, Row.RETURN_BLANK_AS_NULL);
+                if(firstCell == null) {
+                    // End of excel rows
+                    break;
+                }
+                String dateStr = firstCell.getStringCellValue();
+                date = DateUtils.getLocalDateFromString(dateStr);
+                outletCode = row.getCell(1).getStringCellValue();
+//                outletCode = String.valueOf(row.getCell(1).getNumericCellValue()); // outlet code column is created a s numeric
+                vehicleNumber = row.getCell(2).getStringCellValue();
+                imfl = (int) row.getCell(3).getNumericCellValue();
+                beer = (int) row.getCell(4).getNumericCellValue();
+                form3 = (int) row.getCell(5).getNumericCellValue();
+
+                TripDetail tripDetail = new TripDetail(date, outletCode, vehicleNumber, imfl, beer, form3);
+                tripDetails.add(tripDetail);
+            }
+        } catch (Exception e) {
+            throw new CustomException("Exception occurred while uploading file.", e);
+        }
+
+        return tripDetails;
+    }
 
     public static void generateExcelReport(WorkbookDetails workbookDetails, Map<Integer, List<Map<String, Object>>> dataBySheetPosition, OutputStream os, Depo depo) throws IOException {
         List<Map<String, Object>> data;
@@ -49,7 +115,7 @@ public class ExcelExportUtils {
             addHeaderRow(row, columnDetailsList);
 
             // Add data rows
-            for(Map<String, Object> dataRow: data) {
+            for (Map<String, Object> dataRow : data) {
                 row = sheet.createRow(rowIndex++);
                 addDataRow(row, dataRow, columnDetailsList, sheetDetails.isAddDepoHeader());
             }
@@ -59,7 +125,7 @@ public class ExcelExportUtils {
             addTotalRow(row, columnDetailsList, sheetDetails.isAddDepoHeader());
 
             // Set auto size for all the columns
-            for(int i =0; i <= columnDetailsList.size() ; i++) {
+            for (int i = 0; i <= columnDetailsList.size(); i++) {
                 sheet.autoSizeColumn(i);
             }
         }
@@ -93,7 +159,7 @@ public class ExcelExportUtils {
         cell.setCellStyle(getHeaderStyle(row, false));
 
         // Iterate each column detail and add header cell
-        for(ColumnDetails columnDetail: columnDetailsList) {
+        for (ColumnDetails columnDetail : columnDetailsList) {
             cell = row.createCell(cellIndex++);
             cell.setCellValue(columnDetail.getHeader());
             cell.setCellStyle(getHeaderStyle(row, false));
@@ -111,27 +177,27 @@ public class ExcelExportUtils {
         cell.setCellValue(depoNameHeaderExists ? row.getRowNum() - 1 : row.getRowNum());
 
         // Iterate each column detail and add data cell
-        for(ColumnDetails columnDetail: columnDetailsList) {
+        for (ColumnDetails columnDetail : columnDetailsList) {
             cell = row.createCell(cellIndex++);
             log.debug("Adding data cell. Header : {}, Type : {}", columnDetail.getHeader(), columnDetail.getType());
             switch (columnDetail.getType()) {
                 case STRING:
-                    cell.setCellValue((String)dataRow.get(columnDetail.getHeader()));
+                    cell.setCellValue((String) dataRow.get(columnDetail.getHeader()));
                     break;
                 case INT:
-                    cell.setCellValue((Integer)dataRow.get(columnDetail.getHeader()));
+                    cell.setCellValue((Integer) dataRow.get(columnDetail.getHeader()));
                     break;
                 case LONG:
-                    cell.setCellValue((Long)dataRow.get(columnDetail.getHeader()));
+                    cell.setCellValue((Long) dataRow.get(columnDetail.getHeader()));
                     break;
                 case DOUBLE:
-                    cell.setCellValue((Double)dataRow.get(columnDetail.getHeader()));
+                    cell.setCellValue((Double) dataRow.get(columnDetail.getHeader()));
                     break;
                 case BIG_DECIMAL:
-                    cell.setCellValue(((BigDecimal)dataRow.get(columnDetail.getHeader())).intValue());
+                    cell.setCellValue(((BigDecimal) dataRow.get(columnDetail.getHeader())).intValue());
                     break;
                 case DATE:
-                    cell.setCellValue((Date)dataRow.get(columnDetail.getHeader()));
+                    cell.setCellValue((Date) dataRow.get(columnDetail.getHeader()));
                     break;
             }
             CellStyle cellStyle = getCellStyle(row, columnDetail.getType());
@@ -149,20 +215,20 @@ public class ExcelExportUtils {
         // Add sum formula for number type columns
         char headerChar = 'A'; // skip S.No
         int cellIndex = 0;
-        for(ColumnDetails columnDetails: columnDetailsList) {
+        for (ColumnDetails columnDetails : columnDetailsList) {
             cellIndex++;
             headerChar++;
             cell = row.createCell(cellIndex);
-            if(columnDetails.isAddTotal()) {
+            if (columnDetails.isAddTotal()) {
                 // Get cell numbers for formula Ex: "SUM(A1:A10)"
                 int fromRowNum = depoNameHeaderExists ? 3 : 2;
                 int toRowNum = row.getRowNum();
                 String fromCell = String.valueOf(headerChar) + fromRowNum;
                 String toCell = String.valueOf(headerChar) + toRowNum;
-                cell.setCellFormula("SUM(" +  fromCell + ":" + toCell + ")");
+                cell.setCellFormula("SUM(" + fromCell + ":" + toCell + ")");
                 cell.setCellStyle(getHeaderStyle(row, true));
             } else {
-                if(cellIndex == 1) { // Date column
+                if (cellIndex == 1) { // Date column
                     cell.setCellValue("Total");
                 } else {
                     cell.setCellValue(""); // Empty cell to fill background color
@@ -209,7 +275,7 @@ public class ExcelExportUtils {
 
     private static CellStyle getHeaderStyle(Row row, boolean isNumberType) {
         CellStyle cellStyle;
-        if(isNumberType) {
+        if (isNumberType) {
             cellStyle = getCellStyle(row, ColumnDataType.INT);
         } else {
             cellStyle = getCellStyle(row, ColumnDataType.STRING);

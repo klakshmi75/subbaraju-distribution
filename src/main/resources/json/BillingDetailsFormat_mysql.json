@@ -11,12 +11,12 @@
         },
         {
           "header": "Total Cases",
-          "type": "LONG",
+          "type": "BIG_DECIMAL",
           "addTotal": true
         },
         {
           "header": "Form 3 (In Amount)",
-          "type": "LONG",
+          "type": "BIG_DECIMAL",
           "addTotal": true,
           "addRupee": true
         }
@@ -69,7 +69,7 @@
         },
         {
           "header": "Total Cases",
-          "type": "INT",
+          "type": "LONG",
           "addTotal": true
         },
         {
