@@ -138,14 +138,14 @@ public class ExcelHelper {
         // Add District Name header in first 2 cells of first row
         cell = row.createCell(0);
         cell.setCellValue(getDistrictHeader(depo));
-        cell.setCellStyle(getHeaderStyle(row, false));
+        cell.setCellStyle(getHeaderStyle(row, false, false));
         // Merge first and second cells
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1));
 
         // Add Depo Name in 3rd and 4th cell of first row
         cell = row.createCell(2);
         cell.setCellValue(getDepoHeader(depo));
-        cell.setCellStyle(getHeaderStyle(row, false));
+        cell.setCellStyle(getHeaderStyle(row, false, false));
         // Merge third and fourth cells
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 2, 3));
     }
@@ -156,13 +156,13 @@ public class ExcelHelper {
         // Add header "S.No."
         cell = row.createCell(cellIndex++);
         cell.setCellValue(SERIAL_NO_HEADER);
-        cell.setCellStyle(getHeaderStyle(row, false));
+        cell.setCellStyle(getHeaderStyle(row, false, false));
 
         // Iterate each column detail and add header cell
         for (ColumnDetails columnDetail : columnDetailsList) {
             cell = row.createCell(cellIndex++);
             cell.setCellValue(columnDetail.getHeader());
-            cell.setCellStyle(getHeaderStyle(row, false));
+            cell.setCellStyle(getHeaderStyle(row, false, false));
         }
     }
 
@@ -200,7 +200,7 @@ public class ExcelHelper {
                     cell.setCellValue((Date) dataRow.get(columnDetail.getHeader()));
                     break;
             }
-            CellStyle cellStyle = getCellStyle(row, columnDetail.getType());
+            CellStyle cellStyle = getCellStyle(row, columnDetail.getType(), columnDetail.isAddRupee());
             cell.setCellStyle(cellStyle);
         }
     }
@@ -210,7 +210,7 @@ public class ExcelHelper {
         // Create empty cell under S.No. (to be able to apply background color)
         cell = row.createCell(0);
         cell.setCellValue("");
-        cell.setCellStyle(getHeaderStyle(row, false));
+        cell.setCellStyle(getHeaderStyle(row, false, false));
 
         // Add sum formula for number type columns
         char headerChar = 'A'; // skip S.No
@@ -226,14 +226,14 @@ public class ExcelHelper {
                 String fromCell = String.valueOf(headerChar) + fromRowNum;
                 String toCell = String.valueOf(headerChar) + toRowNum;
                 cell.setCellFormula("SUM(" + fromCell + ":" + toCell + ")");
-                cell.setCellStyle(getHeaderStyle(row, true));
+                cell.setCellStyle(getHeaderStyle(row, true, columnDetails.isAddRupee()));
             } else {
                 if (cellIndex == 1) { // Date column
                     cell.setCellValue("Total");
                 } else {
                     cell.setCellValue(""); // Empty cell to fill background color
                 }
-                cell.setCellStyle(getHeaderStyle(row, false));
+                cell.setCellStyle(getHeaderStyle(row, false, false));
             }
 
         }
@@ -252,7 +252,7 @@ public class ExcelHelper {
         return header;
     }
 
-    private static CellStyle getCellStyle(Row row, ColumnDataType dataType) {
+    private static CellStyle getCellStyle(Row row, ColumnDataType dataType, boolean addRupee) {
         CellStyle cellStyle = null;
         Workbook workbook = row.getSheet().getWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
@@ -262,7 +262,14 @@ public class ExcelHelper {
                 cellStyle.setAlignment(CellStyle.ALIGN_LEFT);
                 break;
             case INT:
+            case LONG:
+            case DOUBLE:
+            case BIG_DECIMAL:
                 cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                if(addRupee) {
+                    // For amounts
+                    cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("₹#,##0.00;"));
+                }
                 break;
             case DATE:
                 cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/mmm/yy"));
@@ -273,12 +280,12 @@ public class ExcelHelper {
         return cellStyle;
     }
 
-    private static CellStyle getHeaderStyle(Row row, boolean isNumberType) {
+    private static CellStyle getHeaderStyle(Row row, boolean isNumberType, boolean addRupee) {
         CellStyle cellStyle;
         if (isNumberType) {
-            cellStyle = getCellStyle(row, ColumnDataType.INT);
+            cellStyle = getCellStyle(row, ColumnDataType.INT, addRupee);
         } else {
-            cellStyle = getCellStyle(row, ColumnDataType.STRING);
+            cellStyle = getCellStyle(row, ColumnDataType.STRING, addRupee);
         }
         // Header font
         Font headerFont = row.getSheet().getWorkbook().createFont();
